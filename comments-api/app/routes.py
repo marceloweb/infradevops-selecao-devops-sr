@@ -37,6 +37,19 @@ def init_app_routes(app):
         db.session.commit()
         
         return jsonify(new_comment.to_dict()), 201
+    
+    @app.route('/api/comment/update/<int:id>', methods=['PUT'])
+    def update_comment(id):
+        comment = Comment.query.get(id)
+        if not comment:
+            return jsonify({'error': 'Comment not found'}), 404
+
+        data = request.get_json()
+        if 'comment' in data:
+            comment.comment = data['comment']
+
+        db.session.commit()
+        return jsonify(comment.to_dict()), 200
 
     @app.route('/api/comment/list/<string:content_id>', methods=['GET'])
     def get_comments(content_id):
@@ -45,6 +58,16 @@ def init_app_routes(app):
             return jsonify({'message': 'No comments found for this content_id'}), 404
         
         return jsonify([comment.to_dict() for comment in comments]), 200
+    
+    @app.route('/api/comment/delete/<int:id>', methods=['DELETE'])
+    def delete_comment(id):
+        comment = Comment.query.get(id)
+        if not comment:
+            return jsonify({'error': 'Comment not found'}), 404
+
+        db.session.delete(comment)
+        db.session.commit()
+        return jsonify({'message': 'Comment deleted successfully'}), 200
 
     @app.route('/health', methods=['GET'])
     def health_check():
