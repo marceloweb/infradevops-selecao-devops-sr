@@ -3,7 +3,7 @@ from app import create_app, db
 from app.models import Comment
 
 @pytest.fixture
-def client():
+def app():
     test_config = {
         'TESTING': True,
         'SQLALCHEMY_DATABASE_URI': 'sqlite:///:memory:',
@@ -12,38 +12,50 @@ def client():
     app = create_app(test_config=test_config)
     with app.app_context():
         db.create_all()
-        yield app.test_client()
+        yield app
         db.session.remove()
         db.drop_all()
 
+@pytest.fixture
+def client(app):
+    return app.test_client()
+
 def test_add_comment(client):
-    response = client.post('/comments', json={
-        'content': 'This is a test comment.',
-        'content_id': '123'
+    response = client.post('/api/comment/new', json={
+        'email': 'test@example.com',
+        'comment': 'This is a new test comment.',
+        'content_id': '456'
     })
     
     assert response.status_code == 201
-    assert b'This is a test comment.' in response.data
+    assert b'test@example.com' in response.data
 
     comment = Comment.query.first()
-    assert comment.content == 'This is a test comment.'
-    assert comment.content_id == '123'
+    assert comment.email == 'test@example.com'
+    assert comment.comment == 'This is a new test comment.'
+    assert comment.content_id == '456'
 
 def test_get_comments(client):
-    comment1 = Comment(content='First comment', content_id='abc')
-    comment2 = Comment(content='Second comment', content_id='abc')
+    comment1 = Comment(email='user1@test.com', comment='First comment', content_id='xyz')
+    comment2 = Comment(email='user2@test.com', comment='Second comment', content_id='xyz')
     db.session.add(comment1)
     db.session.add(comment2)
     db.session.commit()
     
-    response = client.get('/comments/abc')
+    response = client.get('/api/comment/list/xyz')
     assert response.status_code == 200
     data = response.get_json()
     assert len(data) == 2
-    assert data[0]['content'] == 'First comment'
-    assert data[1]['content'] == 'Second comment'
+    assert data[0]['comment'] == 'First comment'
+    assert data[1]['comment'] == 'Second comment'
 
-def test_get_comments_not_found(client):
-    response = client.get('/comments/999')
-    assert response.status_code == 404
-    assert b'No comments found' in response.data
+def test_health_check(client):
+    response = client.get('/health')
+    assert response.status_code == 200
+    assert response.get_json()['status'] == 'healthy'
+
+def test_metrics(client):
+    response = client.get('/metrics')
+    assert response.status_code == 200
+    assert b'http_requests_total' in response.data
+    assert b'http_request_duration_seconds' in response.data
