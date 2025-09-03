@@ -45,7 +45,7 @@ jobs:
           sudo chmod +x /usr/local/bin/docker-compose
 
       - name: Run unit tests
-        run: docker-compose -f docker-compose.yml run --rm web pytest comments-api/app/tests/
+        run: docker-compose -f docker-compose.yml run --rm web pytest
 
   deploy:
     runs-on: ubuntu-latest
