@@ -2,11 +2,13 @@ version: '3.8'
 
 services:
   web:
-    build: .
+    build: 
+      context: ./comments-api
+      dockerfile: Dockerfile
     ports:
       - "5000:5000"
     volumes:
-      - .:/app
+      - ./comments-api:/app
     depends_on:
       - db
     environment:
