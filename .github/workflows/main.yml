@@ -8,7 +8,6 @@ on:
       - 'feature/**'
 
 env:
-  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
   AWS_DEFAULT_REGION: us-east-1
   ECR_REPOSITORY: comments-api
   IMAGE_TAG: ${{ github.sha }}
@@ -16,6 +15,7 @@ env:
 jobs:
   build_and_test:
     runs-on: ubuntu-latest
+    environment: develop
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -49,6 +49,7 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
+    environment: develop
     needs: build_and_test
     if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/main'
     steps:
