@@ -1,0 +1,30 @@
+# System files
+.DS_Store
+.env
+.idea/
+.vscode/
+
+# Virtual enviroments
+venv/
+env/
+.venv/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Pytest
+.pytest_cache/
+
+# Databases and docker
+db_data/
+*.sqlite
+docker-compose.override.yml
+
+# Logs
+*.log
