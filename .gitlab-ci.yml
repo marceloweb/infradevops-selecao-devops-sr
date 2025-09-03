@@ -5,7 +5,7 @@ stages:
   - deploy_app
 
 variables:
-  DOCKER_IMAGE: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CI_PROJECT_NAME:$CI_COMMIT_SHORT_SHA  
+  DOCKER_IMAGE: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CI_PROJECT_NAME:$CI_COMMIT_SHORT_SHA
   AWS_DEFAULT_REGION: us-east-1
 
 before_script:
@@ -22,10 +22,11 @@ build_image:
     - echo "Building Docker image..."
     - docker build -t $DOCKER_IMAGE ./comments-api
     - echo "Pushing image to ECR..."
-    - docker push $DOCKER_IMAGE 
+    - docker push $DOCKER_IMAGE
   only:
     - main
     - develop
+    - branches
   tags:
     - docker
 
@@ -41,15 +42,14 @@ run_tests:
     - build_image
   only:
     - main
-    - dev
+    - develop
+    - branches
   tags:
     - docker
 
 # ==============================================================================
-# Job: deploy_infra (Terraform)
+# Job: deploy_infra
 # ==============================================================================
-# Este job é manual para evitar alterações de infraestrutura não intencionais
-# Ou pode ser configurado para rodar em branches específicas como 'develop'
 deploy_infra:
   stage: deploy_infra
   script:
@@ -58,3 +58,54 @@ deploy_infra:
     - terraform init
     - terraform apply -auto-approve -var-file=../dev.tfvars
   when: manual
+  only:
+    - develop
+  tags:
+    - shell
+
+# ==============================================================================
+# Job: deploy_infra_prod
+# ==============================================================================
+deploy_infra_prod:
+  stage: deploy_infra
+  script:
+    - echo "Applying Terraform configuration for Production..."
+    - cd terraform/prod
+    - terraform init
+    - terraform apply -auto-approve -var-file=../prod.tfvars
+  when: manual
+  only:
+    - main
+  tags:
+    - shell
+
+# ==============================================================================
+# Job: deploy_app_develop
+# ==============================================================================
+deploy_app_develop:
+  stage: deploy_app
+  script:
+    - echo "Script de deploy para o ambiente de develop..."
+    # Seu script de deploy para o ambiente de dev/staging aqui
+  needs:
+    - run_tests
+  only:
+    - develop
+  tags:
+    - shell
+
+# ==============================================================================
+# Job: deploy_app_prod
+# ==============================================================================
+deploy_app_prod:
+  stage: deploy_app
+  script:
+    - echo "Script de deploy para o ambiente de produção..."
+    # Seu script de deploy para o ambiente de produção aqui
+  needs:
+    - run_tests
+  when: manual
+  only:
+    - main
+  tags:
+    - shell
