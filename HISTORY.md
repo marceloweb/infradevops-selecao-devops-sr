@@ -21,3 +21,6 @@
 
 ### Added
 - Configuração inicial do arquivo .gitlab-ci.yml.
+
+### Changed
+- Mudança da plataforma de CI/CD para o Github Actions pelo fato da função "pull" no Gitlab só está disponível para planos pagos.
