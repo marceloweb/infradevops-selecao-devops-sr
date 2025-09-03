@@ -49,6 +49,31 @@ def test_get_comments(client):
     assert data[0]['comment'] == 'First comment'
     assert data[1]['comment'] == 'Second comment'
 
+def test_update_comment(client):
+    comment_to_update = Comment(email='old@test.com', comment='Old content', content_id='123')
+    db.session.add(comment_to_update)
+    db.session.commit()
+
+    response = client.put(f'/api/comment/update/{comment_to_update.id}', json={
+        'comment': 'Updated content'
+    })
+    
+    assert response.status_code == 200
+    updated_comment = Comment.query.get(comment_to_update.id)
+    assert updated_comment.comment == 'Updated content'
+
+def test_delete_comment(client):
+    comment_to_delete = Comment(email='delete@test.com', comment='Content to be deleted', content_id='999')
+    db.session.add(comment_to_delete)
+    db.session.commit()
+
+    response = client.delete(f'/api/comment/delete/{comment_to_delete.id}')
+    
+    assert response.status_code == 200
+    deleted_comment = Comment.query.get(comment_to_delete.id)
+    assert deleted_comment is None
+    assert b'Comment deleted successfully' in response.data
+
 def test_health_check(client):
     response = client.get('/health')
     assert response.status_code == 200
