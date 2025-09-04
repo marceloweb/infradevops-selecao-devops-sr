@@ -9,7 +9,7 @@ on:
 
 env:
   AWS_DEFAULT_REGION: us-east-1
-  ECR_REPOSITORY: comments-api
+  ECR_REPOSITORY: comments-api-dev
   IMAGE_TAG: ${{ github.sha }}
 
 jobs:
@@ -32,7 +32,7 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build Docker image
-        run: docker build -t ${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} ./comments-api
+        run: docker build -t ${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} ./comments-api-dev
 
       - name: Push image to ECR
         run: |
@@ -69,4 +69,4 @@ jobs:
           # This is an example, adapt to your needs
           echo "Updating ArgoCD app with new image tag: ${{ env.IMAGE_TAG }}"
           aws ssm get-parameter --name "argocd-token" --with-decryption | jq -r ".Parameter.Value" | argocd login --grpc-web argocd.example.com --username admin --password-stdin
-          argocd app set comments-api --repo https://github.com/seu-usuario/seu-repo-gitops.git --revision ${{ env.IMAGE_TAG }}
+          argocd app set comments-api-dev --repo https://github.com/seu-usuario/seu-repo-gitops.git --revision ${{ env.IMAGE_TAG }}
