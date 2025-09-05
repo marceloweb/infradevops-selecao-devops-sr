@@ -17,6 +17,7 @@ on:
         type: choice
         default: "apply"
         options:
+          - "plan"
           - "apply"
           - "destroy"
 

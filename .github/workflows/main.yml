@@ -15,7 +15,7 @@ env:
 jobs:
   build_and_test:
     runs-on: ubuntu-latest
-    environment: develop
+    environment: dev
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -30,6 +30,15 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Check for ECR repository existence
+        id: check-ecr
+        run: |
+          aws ecr describe-repositories --repository-names ${{ env.ECR_REPOSITORY }} > /dev/null 2>&1
+          if [ $? -ne 0 ]; then
+            echo "::error::ECR repository '${{ env.ECR_REPOSITORY }}' not found. Aborting build."
+            exit 1
+          fi
 
       - name: Build Docker image
         run: docker build -t ${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} ./comments-api
