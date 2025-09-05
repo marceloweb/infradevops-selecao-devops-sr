@@ -1,4 +1,4 @@
-name: Terraform Provision
+name: Infra AWS
 
 on:
   workflow_dispatch:
