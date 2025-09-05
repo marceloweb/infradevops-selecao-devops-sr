@@ -1,3 +1,29 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+    }
+    kubernetes = {
+      source = "hashicorp/kubernetes"
+    }
+    helm = {
+      source = "hashicorp/helm"
+    }
+  }
+}
+
+provider "kubernetes" {
+  kubernetes = {
+    config_path = "~/.kube/config"
+  }
+}
+
+provider "helm" {
+  kubernetes = {
+    config_path = "~/.kube/config"
+  }
+}
+
 data "aws_caller_identity" "current" {}
 
 locals {
@@ -19,11 +45,38 @@ module "comments_ecr_dev" {
   repository_name = var.repository_name
 }
 
+module "iam_role" {
+  source = "../modules/iam"
+  role_name = "eks-role-dev"
+}
+
 module "eks_dev" {
   source = "../modules/eks_cluster"
 
   cluster_name     = var.cluster_name
-  cluster_role_arn = "arn:aws:iam::${local.account_id}:role/eks-role-dev"
+  cluster_role_arn = module.iam_role.arn
   subnet_ids       = module.network_dev.private_subnet_ids
   instance_type    = var.instance_type
+  desired_size     = 2
+  min_size         = 1
+  max_size         = 3
+}
+
+resource "null_resource" "update_kubeconfig" {
+  depends_on = [module.eks_dev]
+
+  provisioner "local-exec" {
+    command = "aws eks update-kubeconfig --name ${module.eks_dev.cluster_name} --region ${var.aws_region}"
+  }
+}
+
+module "argocd" {
+  source = "../modules/argocd"
+
+  providers = {
+    helm        = helm
+    kubernetes  = kubernetes
+  }
+
+  depends_on = [null_resource.update_kubeconfig]
 }

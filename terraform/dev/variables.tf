@@ -3,9 +3,19 @@ variable cluster_name {
   description = "description"
 }
 
+variable aws_region {
+  type        = string
+  description = "description"
+}
+
 variable cluster_role_arn {
   type        = string
   description = "description"
+}
+
+variable "role_name" {
+  description = "The name of the IAM role"
+  type        = string
 }
 
 variable subnet_ids {
