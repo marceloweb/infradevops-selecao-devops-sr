@@ -60,6 +60,7 @@ module "eks_dev" {
   desired_size     = 2
   min_size         = 1
   max_size         = 3
+  cluster_security_group_id = module.eks_cluster.cluster_security_group_id
 }
 
 resource "null_resource" "update_kubeconfig" {
@@ -79,4 +80,16 @@ module "argocd" {
   }
 
   depends_on = [null_resource.update_kubeconfig]
+}
+
+module "rds" {
+  source = "../modules/rds"
+
+  environment = var.environment
+  vpc_id      = module.network.vpc_id
+  subnet_ids  = module.network.private_subnet_ids
+  db_username = "postgres"
+  db_password = var.db_password
+  db_name     = "comments_db"
+  eks_cluster_security_group_id = module.eks_cluster.cluster_security_group_id
 }
