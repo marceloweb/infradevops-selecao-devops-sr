@@ -34,8 +34,9 @@ jobs:
       - name: Check for ECR repository existence
         id: check-ecr
         run: |
-          aws ecr describe-repositories --repository-names ${{ env.ECR_REPOSITORY }} > /dev/null 2>&1
-          if [ $? -eq 0 ]; then
+          aws ecr describe-repositories --repository-names ${{ env.ECR_REPOSITORY }} > /dev/null 2>&1 || REPO_FOUND=$?
+          
+          if [ "${{ vars.REPO_FOUND }}" == "0" ]; then
             echo "repo-found=true" >> $GITHUB_OUTPUT
           else
             echo "repo-found=false" >> $GITHUB_OUTPUT
