@@ -24,3 +24,10 @@
 
 ### Changed
 - Mudança da plataforma de CI/CD para o Github Actions pelo fato da função "pull" no Gitlab só está disponível para planos pagos.
+
+## 0.0.1 - 2025-09-04
+### Added
+- Provisionamento da infra na AWS.
+
+### Added
+- Provisionamento do ArgoCD via Terraform.
