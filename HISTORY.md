@@ -31,3 +31,7 @@
 
 ### Added
 - Provisionamento do ArgoCD via Terraform.
+
+## 0.0.1 - 2025-09-05
+### Added
+- Preparando yml para fazer o provisionamento da infra via Github Action.
