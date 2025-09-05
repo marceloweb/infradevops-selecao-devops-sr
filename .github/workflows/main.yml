@@ -51,6 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: dev
     needs: build_and_test
+    if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/main'
     
     steps:
       - name: Checkout repository
@@ -63,7 +64,7 @@ jobs:
 
       - name: Update image tag in manifest
         run: |
-          sed -i "s|image:.*|image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}|" manifests/dev/comments-api-deployment.yaml
+          sed -i "s|image:.*|image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}|" manifests/dev/comments-api-deployment.yml
 
       - name: Commit and push changes to the 'develop' branch
         run: |
