@@ -60,7 +60,6 @@ module "eks_dev" {
   desired_size     = 2
   min_size         = 1
   max_size         = 3
-  cluster_security_group_id = module.eks_cluster.cluster_security_group_id
 }
 
 resource "null_resource" "update_kubeconfig" {
