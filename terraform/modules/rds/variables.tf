@@ -37,3 +37,8 @@ variable "db_engine_version" {
   type        = string
   default     = "13.6"
 }
+
+variable "eks_cluster_security_group_id" {
+  description = "The ID of the security group for the EKS cluster to allow ingress."
+  type        = string
+}
