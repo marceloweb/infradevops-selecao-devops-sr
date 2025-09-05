@@ -7,16 +7,17 @@ on:
         description: "Ambiente para provisionar"
         required: true
         type: choice
-        default: "dev"
+        default: "develop"
         options:
-          - "dev"
-          - "prd"
+          - "develop"
+          - "production"
       action:
         description: "Ação do Terraform"
         required: true
         type: choice
         default: "apply"
         options:
+          - "plan"
           - "apply"
           - "destroy"
 
