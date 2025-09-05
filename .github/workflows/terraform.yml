@@ -1,4 +1,4 @@
-name: "Terraform Provision"
+name: Terraform Provision
 
 on:
   workflow_dispatch:
