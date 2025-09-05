@@ -68,6 +68,6 @@ jobs:
 
       - name: Commit and push changes to the 'develop' branch
         run: |
-          git add manifests/dev/comments-api-deployment.yaml
+          git add manifests/dev/comments-api-deployment.yml
           git commit -m "chore: Update image tag to ${{ env.IMAGE_TAG }}" || echo "No changes to commit"
           git push
