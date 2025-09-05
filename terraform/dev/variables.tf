@@ -57,3 +57,10 @@ variable "instance_type" {
   description = "The EC2 instance type for the EKS worker nodes"
   type        = string
 }
+
+variable "db_password" {
+  description = "Database master password."
+  type        = string
+  default     = "password"
+  sensitive   = true
+}
