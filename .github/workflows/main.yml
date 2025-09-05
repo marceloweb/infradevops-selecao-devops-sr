@@ -34,16 +34,19 @@ jobs:
       - name: Check for ECR repository existence
         id: check-ecr
         run: |
-          aws ecr describe-repositories --repository-names ${{ env.ECR_REPOSITORY }} > /dev/null 2>&1
-          if [ $? -ne 0 ]; then
-            echo "::error::ECR repository '${{ env.ECR_REPOSITORY }}' not found. Aborting build."
-            exit 1
+          aws ecr describe-repositories --repository-names ${{ env.ECR_REPOSITORY }} > /dev/null 2>&1 || REPO_FOUND=$?
+          
+          if [ "${{ vars.REPO_FOUND }}" == "0" ]; then
+            echo "repo-found=true" >> $GITHUB_OUTPUT
+          else
+            echo "repo-found=false" >> $GITHUB_OUTPUT
           fi
 
       - name: Build Docker image
         run: docker build -t ${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} ./comments-api
 
       - name: Push image to ECR
+        if: steps.check-ecr.outputs.repo-found == 'true'
         run: |
           docker tag ${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
           docker push ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
