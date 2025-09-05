@@ -35,7 +35,7 @@ variable "db_name" {
 variable "db_engine_version" {
   description = "The engine version of the database."
   type        = string
-  default     = "17.4-R1"
+  default     = "17.4"
 }
 
 variable "eks_cluster_security_group_id" {
