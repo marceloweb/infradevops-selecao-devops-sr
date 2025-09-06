@@ -67,9 +67,11 @@ jobs:
 
       - name: Deploy Jaeger
         run: |
+          kubectl delete service jaeger-query --namespace monitoring || true
+          
           helm upgrade --install jaeger jaeger/jaeger \
             --namespace monitoring \
-            --set allInOne.enabled=false \
+            --set allInOne.enabled=true \
             --set collector.enabled=true \
             --set collector.service.type=ClusterIP \
             --set query.service.type=LoadBalancer
