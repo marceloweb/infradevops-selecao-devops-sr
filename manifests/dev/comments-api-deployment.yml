@@ -21,7 +21,7 @@ spec:
             - secretRef:
                 name: comments-api-db-secret
           env:
-            - name: JAEGER_HOST
-              value: jaeger-all-in-one
-            - name: JAEGER_PORT
-              value: "6831"
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://jaeger-collector:4317"
+            - name: OTEL_EXPORTER_OTLP_INSECURE
+              value: "true"
