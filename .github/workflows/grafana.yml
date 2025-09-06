@@ -69,6 +69,7 @@ jobs:
         run: |
           helm upgrade --install jaeger jaeger/jaeger \
             --namespace monitoring \
-            --set allInOne.enabled=true \
-            --set allInOne.image.tag=1.57 \
-            --set service.type=LoadBalancer
+            --set allInOne.enabled=false \
+            --set collector.enabled=true \
+            --set collector.service.type=ClusterIP \
+            --set query.service.type=LoadBalancer
