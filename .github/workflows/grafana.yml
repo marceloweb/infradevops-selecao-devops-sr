@@ -66,9 +66,7 @@ jobs:
         run: helm repo update
 
       - name: Deploy Jaeger
-        run: |
-          kubectl delete service jaeger-query --namespace monitoring || true
-          
+        run: |          
           helm upgrade --install jaeger jaeger/jaeger \
             --namespace monitoring \
             --set allInOne.enabled=true \
