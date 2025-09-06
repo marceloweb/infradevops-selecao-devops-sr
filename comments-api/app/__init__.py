@@ -5,7 +5,7 @@ from opentelemetry import trace
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
-from opentelemetry.exporter.jaeger.proto.grpc import JaegerExporter
+from opentelemetry.exporter.jaeger.thrift import JaegerExporter
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
 from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
 
@@ -21,7 +21,7 @@ def create_app(test_config=None):
 
     jaeger_exporter = JaegerExporter(
         agent_host_name=os.getenv("JAEGER_HOST", "jaeger-all-in-one"),
-        agent_port=os.getenv("JAEGER_PORT", 6831),
+        agent_port=int(os.getenv("JAEGER_PORT", "6831")),
     )
 
     provider = TracerProvider(resource=resource)
