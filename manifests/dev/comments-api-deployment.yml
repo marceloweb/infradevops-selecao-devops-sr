@@ -16,7 +16,7 @@ spec:
         - name: comments-api
           image: $IMAGE_URL
           ports:
-            - containerPort: 8000
+            - containerPort: 5000
           envFrom:
             - secretRef:
                 name: comments-api-db-secret
