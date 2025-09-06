@@ -1,4 +1,5 @@
 from flask import Flask
+import os
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
@@ -24,6 +25,10 @@ def create_app(test_config=None):
         from . import models
         from .routes import init_app_routes
         init_app_routes(app)
-        db.create_all()
+        
+        try:
+            db.create_all()
+        except Exception as e:
+            print(f"Database creation failed: {e}")
 
     return app
