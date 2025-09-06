@@ -17,6 +17,7 @@ on:
         type: choice
         default: "apply"
         options:
+          - "plan"
           - "apply"
           - "destroy"
 
@@ -54,7 +55,7 @@ jobs:
 
       - name: Terraform Plan
         id: plan
-        if: github.event.inputs.action == 'apply'
+        if: github.event.inputs.action == 'plan'
         run: terraform plan -var-file=${{ github.event.inputs.environment }}.tfvars
         working-directory: terraform/${{ github.event.inputs.environment }}
 

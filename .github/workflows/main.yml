@@ -15,7 +15,7 @@ env:
 jobs:
   build_and_test:
     runs-on: ubuntu-latest
-    environment: develop
+    environment: dev
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -31,10 +31,21 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
+      - name: Check for ECR repository existence
+        id: check-ecr
+        run: |
+          aws ecr describe-repositories --repository-names ${{ env.ECR_REPOSITORY }} > /dev/null 2>&1
+          if [ $? -eq 0 ]; then
+            echo "repo-found=true" >> $GITHUB_OUTPUT
+          else
+            echo "repo-found=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Build Docker image
         run: docker build -t ${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} ./comments-api
 
       - name: Push image to ECR
+        if: steps.check-ecr.outputs.repo-found == 'true'
         run: |
           docker tag ${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
           docker push ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
@@ -49,7 +60,7 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    environment: develop
+    environment: dev
     needs: build_and_test
     if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/main'
     
@@ -67,6 +78,15 @@ jobs:
       - name: Update kubeconfig
         run: aws eks update-kubeconfig --name comments-api-dev --region ${{ env.AWS_DEFAULT_REGION }}
 
+      - name: Create or update DB connection Secret
+        run: |
+          kubectl create secret generic comments-api-db-secret \
+            --from-literal=POSTGRES_USER=${{ secrets.POSTGRES_USER }} \
+            --from-literal=POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} \
+            --from-literal=POSTGRES_HOST=${{ secrets.POSTGRES_HOST }} \
+            --from-literal=POSTGRES_DB=${{ secrets.POSTGRES_DB }} \
+            --dry-run=client -o yaml | kubectl apply -f -  
+
       - name: Get ECR registry URL
         id: get-registry
         run: |
@@ -76,3 +96,4 @@ jobs:
         run: |
           export IMAGE_URL=${{ steps.get-registry.outputs.registry }}:${{ env.IMAGE_TAG }}
           envsubst < manifests/dev/comments-api-deployment.yml | kubectl apply -f -
+          kubectl apply -f manifests/dev/comments-api-service.yml

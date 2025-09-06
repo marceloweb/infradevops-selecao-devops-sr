@@ -5,8 +5,8 @@ metadata:
 spec:
   type: LoadBalancer
   selector:
-    app: comments-api-dev
+    app: comments-api
   ports:
     - protocol: TCP
       port: 80
-      targetPort: 8000
+      targetPort: 5000

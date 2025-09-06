@@ -1,0 +1,57 @@
+name: Observability Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Ambiente para implantar"
+        required: true
+        type: choice
+        default: "dev"
+        options:
+          - "dev"
+          - "prd"
+
+env:
+  AWS_DEFAULT_REGION: us-east-1
+
+jobs:
+  deploy_grafana:
+    name: "Deploy Grafana"
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+
+    permissions:
+      contents: "read"
+      id-token: "write"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_DEFAULT_REGION }}
+
+      - name: Update kubeconfig
+        run: aws eks update-kubeconfig --name comments-api-${{ github.event.inputs.environment }} --region ${{ env.AWS_DEFAULT_REGION }}
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+
+      - name: Add Prometheus Helm repository
+        run: helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+
+      - name: Update Helm repositories
+        run: helm repo update
+
+      - name: Deploy Observability Stack
+        run: |
+          helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
+            --namespace monitoring --create-namespace \
+            --set prometheus.service.type=LoadBalancer \
+            --set grafana.service.type=LoadBalancer \
+            --set grafana.adminPassword='${{ secrets.GRAFANA_PASSWORD }}'

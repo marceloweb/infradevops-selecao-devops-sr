@@ -1,0 +1,12 @@
+cluster_name = "comments-api-dev"
+cluster_role_arn = "arn:aws:iam::890675146779:role/eks-role-dev"
+role_name = "eks-role-dev"
+subnet_ids = ["subnet-0a1b2c3d4e5f6g7h8", "subnet-0i9j8k7l6m5n4o3p2"]
+repository_name = "comments-api-dev"
+project_name = "comments-api"
+environment = "dev"
+vpc_cidr = "10.0.0.0/16"
+public_subnet_cidrs = ["10.0.1.0/24", "10.0.2.0/24"]
+private_subnet_cidrs = ["10.0.3.0/24", "10.0.4.0/24"]
+instance_type = "t3.medium"
+aws_region = "us-east-1"
