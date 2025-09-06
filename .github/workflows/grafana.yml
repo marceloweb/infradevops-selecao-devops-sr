@@ -66,9 +66,12 @@ jobs:
         run: helm repo update
 
       - name: Deploy Jaeger
-        run: |          
-          helm upgrade --install jaeger jaeger/jaeger \
+        run: |
+          helm uninstall jaeger -n monitoring
+
+          helm install jaeger jaeger/jaeger \
             --namespace monitoring \
+            --create-namespace \
             --set allInOne.enabled=true \
             --set collector.enabled=true \
             --set collector.service.type=ClusterIP \
