@@ -1,11 +1,37 @@
 from flask import Flask
 import os
 from flask_sqlalchemy import SQLAlchemy
+from opentelemetry import trace
+from opentelemetry.sdk.resources import Resource
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.exporter.jaeger.proto.grpc import JaegerExporter
+from opentelemetry.instrumentation.flask import FlaskInstrumentor
+from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
 
 db = SQLAlchemy()
 
 def create_app(test_config=None):
     app = Flask(__name__)
+
+    resource = Resource.create(attributes={
+        "service.name": "comments-api",
+        "service.version": "1.0"
+    })
+
+    jaeger_exporter = JaegerExporter(
+        agent_host_name=os.getenv("JAEGER_HOST", "jaeger-all-in-one"),
+        agent_port=os.getenv("JAEGER_PORT", 6831),
+    )
+
+    provider = TracerProvider(resource=resource)
+    provider.add_span_processor(BatchSpanProcessor(jaeger_exporter))
+    trace.set_tracer_provider(provider)
+
+    FlaskInstrumentor().instrument_app(app)
+    SQLAlchemyInstrumentor().instrument(
+        engine=db.engine
+    )
     
     if test_config:
         app.config.from_mapping(test_config)
