@@ -78,6 +78,15 @@ jobs:
       - name: Update kubeconfig
         run: aws eks update-kubeconfig --name comments-api-dev --region ${{ env.AWS_DEFAULT_REGION }}
 
+      - name: Create or update DB connection Secret
+        run: |
+          kubectl create secret generic comments-api-db-secret \
+            --from-literal=POSTGRES_USER=${{ secrets.POSTGRES_USER }} \
+            --from-literal=POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} \
+            --from-literal=POSTGRES_HOST=${{ secrets.POSTGRES_HOST }} \
+            --from-literal=POSTGRES_DB=${{ secrets.POSTGRES_DB }} \
+            --dry-run=client -o yaml | kubectl apply -f -  
+
       - name: Get ECR registry URL
         id: get-registry
         run: |
