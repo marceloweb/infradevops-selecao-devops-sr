@@ -55,3 +55,20 @@ jobs:
             --set prometheus.service.type=LoadBalancer \
             --set grafana.service.type=LoadBalancer \
             --set grafana.adminPassword='${{ secrets.GRAFANA_PASSWORD }}'
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+
+      - name: Add Jaeger Helm repository
+        run: helm repo add jaeger https://jaegertracing.github.io/helm-charts
+      
+      - name: Update Helm repositories
+        run: helm repo update
+
+      - name: Deploy Jaeger
+        run: |
+          helm upgrade --install jaeger jaeger/jaeger \
+            --namespace monitoring \
+            --set allInOne.enabled=true \
+            --set allInOne.image.tag=1.57 \
+            --set service.type=LoadBalancer
