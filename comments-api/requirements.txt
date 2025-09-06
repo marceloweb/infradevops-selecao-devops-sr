@@ -14,4 +14,5 @@ opentelemetry-sdk
 opentelemetry-exporter-jaeger-thrift
 opentelemetry-instrumentation-flask
 opentelemetry-instrumentation-sqlalchemy
-deprecated
+opentelemetry-exporter-otlp==1.26.0
+opentelemetry-exporter-otlp-proto-grpc==1.26.0

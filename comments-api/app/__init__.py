@@ -5,7 +5,7 @@ from opentelemetry import trace
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
-from opentelemetry.exporter.jaeger.thrift import JaegerExporter
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
 from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
 
@@ -19,20 +19,18 @@ def create_app(test_config=None):
         "service.version": "1.0"
     })
 
-    jaeger_exporter = JaegerExporter(
-        agent_host_name=os.getenv("JAEGER_HOST", "jaeger-all-in-one"),
-        agent_port=int(os.getenv("JAEGER_PORT", "6831")),
+    otlp_exporter = OTLPSpanExporter(
+        endpoint=os.getenv("OTLP_ENDPOINT", "http://otel-collector:4317"),
+        insecure=True
     )
 
     provider = TracerProvider(resource=resource)
-    provider.add_span_processor(BatchSpanProcessor(jaeger_exporter))
+    provider.add_span_processor(BatchSpanProcessor(otlp_exporter))
     trace.set_tracer_provider(provider)
 
     FlaskInstrumentor().instrument_app(app)
-    SQLAlchemyInstrumentor().instrument(
-        engine=db.engine
-    )
-    
+    SQLAlchemyInstrumentor().instrument()
+
     if test_config:
         app.config.from_mapping(test_config)
     else:
@@ -42,7 +40,9 @@ def create_app(test_config=None):
         db_port = os.getenv('POSTGRES_PORT', '5432')
         db_name = os.getenv('POSTGRES_DB', 'comments_db')
 
-        app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}'
+        app.config['SQLALCHEMY_DATABASE_URI'] = (
+            f'postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}'
+        )
         app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     db.init_app(app)
@@ -51,7 +51,7 @@ def create_app(test_config=None):
         from . import models
         from .routes import init_app_routes
         init_app_routes(app)
-        
+
         try:
             db.create_all()
         except Exception as e:
