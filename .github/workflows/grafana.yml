@@ -68,8 +68,7 @@ jobs:
       - name: Deploy Jaeger
         run: |
           helm upgrade --install jaeger jaeger/jaeger \
-            --namespace monitoring \
+            --namespace monitoring --create-namespace \
             --set allInOne.enabled=true \
-            --set collector.enabled=true \
-            --set collector.service.type=ClusterIP \
+            --set allInOne.image.tag=1.57 \
             --set query.service.type=LoadBalancer
