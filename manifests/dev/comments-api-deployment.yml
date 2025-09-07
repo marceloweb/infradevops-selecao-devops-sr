@@ -22,6 +22,6 @@ spec:
                 name: comments-api-db-secret
           env:
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
-              value: "http://jaeger-collector:4317"
+              value: "http://otel-collector:4317"
             - name: OTEL_EXPORTER_OTLP_INSECURE
               value: "true"
