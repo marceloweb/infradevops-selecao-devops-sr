@@ -70,6 +70,6 @@ jobs:
             --set collector.enabled=true \
             --set query.enabled=true \
             --set query.service.type=LoadBalancer \
-            --set storage.type=memory \ 
+            --set storage.type=memory \
             --wait \
-            --timeout 120s        
+            --timeout 120s
