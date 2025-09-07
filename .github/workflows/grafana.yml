@@ -56,9 +56,6 @@ jobs:
             --set grafana.service.type=LoadBalancer \
             --set grafana.adminPassword='${{ secrets.GRAFANA_PASSWORD }}'
 
-      - name: Install Helm
-        uses: azure/setup-helm@v4
-
       - name: Add Jaeger Helm repository
         run: helm repo add jaegertracing https://jaegertracing.github.io/helm-charts
       
@@ -68,8 +65,12 @@ jobs:
       - name: Deploy Jaeger
         run: |
           helm upgrade --install jaeger jaegertracing/jaeger \
-            --namespace monitoring --create-namespace \
             --set agent.enabled=true \
             --set collector.enabled=true \
             --set query.enabled=true \
-            --set query.service.type=LoadBalancer            
+            --set query.service.type=LoadBalancer \
+            --set storage.type=elasticsearch \
+            --set storage.elasticsearch.host=elasticsearch \
+            --set storage.elasticsearch.port=9200 \
+            --wait \
+            --timeout 300s          
