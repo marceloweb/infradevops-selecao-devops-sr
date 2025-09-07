@@ -67,14 +67,8 @@ jobs:
 
       - name: Deploy Jaeger
         run: |
-          helm uninstall jaeger --namespace monitoring || true
-          kubectl delete service jaeger-collector --namespace monitoring || true
-          kubectl delete service jaeger-agent --namespace monitoring || true
-          kubectl delete service jaeger-query --namespace monitoring || true
-
-          helm install jaeger jaeger/jaeger \
+          helm upgrade --install jaeger jaeger/jaeger \
             --namespace monitoring \
-            --create-namespace \
             --set allInOne.enabled=true \
             --set collector.enabled=true \
             --set collector.service.type=ClusterIP \
