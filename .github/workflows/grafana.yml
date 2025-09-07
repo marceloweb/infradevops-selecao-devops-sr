@@ -60,7 +60,7 @@ jobs:
         uses: azure/setup-helm@v4
 
       - name: Add Jaeger Helm repository
-        run: helm repo add jaeger https://jaegertracing.github.io/helm-charts
+        run: helm repo add jaegertracing https://jaegertracing.github.io/helm-charts
       
       - name: Update Helm repositories
         run: helm repo update
