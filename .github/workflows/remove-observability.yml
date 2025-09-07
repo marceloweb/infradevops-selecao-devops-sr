@@ -1,0 +1,61 @@
+name: Destroy Observability Stack
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Ambiente para desinstalar"
+        required: true
+        type: choice
+        default: "dev"
+        options:
+          - "dev"
+          - "prd"
+
+env:
+  AWS_DEFAULT_REGION: us-east-1
+
+jobs:
+  destroy:
+    name: "Destroy Stack in ${{ github.event.inputs.environment }}"
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+
+    permissions:
+      contents: "read"
+      id-token: "write"
+
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_DEFAULT_REGION }}
+
+      - name: Update kubeconfig
+        run: aws eks update-kubeconfig --name comments-api-${{ github.event.inputs.environment }} --region ${{ env.AWS_DEFAULT_REGION }}
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+
+      - name: Uninstall Helm releases
+        run: |
+          echo "Buscando releases do Helm no namespace 'monitoring'..."
+          releases=$(helm list --all --namespace monitoring -q)
+          if [ -z "$releases" ]; then
+            echo "Nenhuma release do Helm encontrada para desinstalar."
+          else
+            echo "Desinstalando releases: $releases"
+            helm uninstall $releases --namespace monitoring
+          fi
+          
+      - name: Delete monitoring namespace
+        run: |
+          echo "Tentando excluir o namespace 'monitoring'..."
+          if kubectl get namespace monitoring &> /dev/null; then
+            kubectl delete namespace monitoring
+            echo "Namespace 'monitoring' excluído com sucesso."
+          else
+            echo "Namespace 'monitoring' não encontrado. Nenhuma ação necessária."
+          fi

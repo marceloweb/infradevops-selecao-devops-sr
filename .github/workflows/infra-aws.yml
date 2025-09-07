@@ -1,4 +1,4 @@
-name: Infra AWS
+name: AWS Provisioning
 
 on:
   workflow_dispatch:
