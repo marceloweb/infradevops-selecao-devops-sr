@@ -12,8 +12,8 @@ data:
           http:
 
     exporters:
-      jaeger:
-        endpoint: jaeger-collector:14250
+      otlp:
+        endpoint: jaeger-collector:4317
         tls:
           insecure: true
 
@@ -21,7 +21,7 @@ data:
       pipelines:
         traces:
           receivers: [otlp]
-          exporters: [jaeger]
+          exporters: [otlp]
 ---
 apiVersion: apps/v1
 kind: Deployment
