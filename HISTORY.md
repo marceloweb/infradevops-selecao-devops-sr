@@ -35,3 +35,10 @@
 ## 0.0.1 - 2025-09-05
 ### Added
 - Preparando yml para fazer o provisionamento da infra via Github Action.
+
+## 0.0.1 - 2025-09-09
+### Added
+- Adicionado Jaeger para monitoramento de trace.
+
+### Change
+- Otimização do Dockerfile.
