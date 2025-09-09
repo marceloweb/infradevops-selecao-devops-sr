@@ -12,5 +12,19 @@ A aplicação possui uma arquitetura simples com separação de responsabilidade
 ## Ambiente de Testes
 Decidimos usar o banco de dados SQLite em memória apenas para os testes unitários. Essa abordagem garante que os testes sejam feitos rápidos, isolados e não dependam de conexão externa.
 
-## Melhorias
-O ideal seria um job para cada recurso da AWS. Ex: um job para gerar EC2, outro para EKS e assim por diante, todos parametrizados. Por questões de tempo, aqui criamos todos os recursos de uma única vez.
+## Melhorias futuras
+
+### Módulos do terraform em repositórios separados
+O código da infra modulado, permitindo a construção de novos módulos dentro de um padrão e com sua própria gestão de atualizações. 
+
+### Um job para cada recurso de infra
+Alguns recurso de infra podem ser disponibilizados para construção a parte. Por exemplo, o provisionamento de um cluster EKS em determinada conta existente. Isso pode ser parametrizável e acessível a usuários com permissão.
+
+### Deploy através do ArgoCD
+O mesmo está sendo provisionado, mas ainda não faz a gestão de mudanças no kubernetes.
+
+### Autoscaling
+A melhoria de performance com a inclusão de uma estratégia de autoscaling.
+
+### Estratégia de deploy
+Atualmente estamos usando a estratégia de deploy padrão, Rolling Update, mas apesar de segura, é lenta e tem um processo de rollback complexo. A evolução dessa infra deve contemplar a escolha de uma estratégia mais avançada como Canary.
