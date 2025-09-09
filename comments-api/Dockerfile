@@ -17,7 +17,7 @@ RUN groupadd --gid 1000 appgroup && useradd --uid 1000 --gid appgroup --shell /b
 WORKDIR /app
 
 COPY --from=builder --chown=appuser:appgroup /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
-COPY --from=builder --chown=appuser:appgroup /usr/local/bin/flask /usr/local/bin/
+COPY --from=builder /usr/local/bin/ /usr/local/bin/
 
 COPY . .
 
