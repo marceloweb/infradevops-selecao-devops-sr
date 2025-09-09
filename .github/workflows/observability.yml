@@ -54,4 +54,6 @@ jobs:
             --namespace monitoring --create-namespace \
             --set prometheus.service.type=LoadBalancer \
             --set grafana.service.type=LoadBalancer \
+            --set grafana.service.port=80 \
+            --set grafana.service.targetPort=3000 \
             --set grafana.adminPassword='${{ secrets.GRAFANA_PASSWORD }}'
