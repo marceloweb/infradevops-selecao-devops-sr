@@ -1,35 +1,11 @@
 from flask import Flask
 import os
 from flask_sqlalchemy import SQLAlchemy
-from opentelemetry import trace
-from opentelemetry.sdk.resources import Resource
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
-from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
-from opentelemetry.instrumentation.flask import FlaskInstrumentor
-from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
 
 db = SQLAlchemy()
 
 def create_app(test_config=None):
     app = Flask(__name__)
-
-    resource = Resource.create(attributes={
-        "service.name": "comments-api",
-        "service.version": "1.0"
-    })
-
-    otlp_exporter = OTLPSpanExporter(
-        endpoint=os.getenv("OTLP_ENDPOINT", "http://otel-collector:4317"),
-        insecure=True
-    )
-
-    provider = TracerProvider(resource=resource)
-    provider.add_span_processor(BatchSpanProcessor(otlp_exporter))
-    trace.set_tracer_provider(provider)
-
-    FlaskInstrumentor().instrument_app(app)
-    SQLAlchemyInstrumentor().instrument()
 
     if test_config:
         app.config.from_mapping(test_config)
